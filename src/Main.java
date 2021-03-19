@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 
@@ -13,51 +14,55 @@ public class Main {
     private static int numy;
 
     public static void main(String[] args) throws IOException {
-        String num1;
+        String num1 = br.readLine();
         do {
-        		num1 = br.readLine();
+        	if (!num1.equals("")) {
                 int num = Integer.parseInt(num1);
                 String numStr = br.readLine();
                 String[] arrNumStr = numStr.split(" ");
                 int[] arrNum = arrToInt(arrNumStr, num);
                 int money = Integer.parseInt(br.readLine());
-
                 setNums(arrNum, money);
-                bw.write("Peter should buy books whose prices are " + numx + " and " + numy + ".\n");
-                num1 = br.readLine();
+                bw.write("Peter should buy books whose prices are " + numx + " and " + numy + ".\n\n");
+			}
+        	num1 = br.readLine();
         }while (num1 != null);
         br.close();
         bw.close();
     }
 
     public static void setNums(int[] arrNum, int money) {
+    	Arrays.sort(arrNum);
         ArrayList<Integer> auxNums = new ArrayList<>();
-        for (int i = 0; i < arrNum.length - 1; i++) {
-            for (int j = i + 1; j < arrNum.length; j++) {
-                if (arrNum[i] + arrNum[j] == money) {
-                    auxNums.add(arrNum[i]);
-                    auxNums.add(arrNum[j]);
-                }
-            }
+        int i = 0;
+        int j = arrNum.length - 1;
+        int monAux = money;
+        int pos = -1;
+        for (int x = 0; x < arrNum.length; x++) {
+        	while (i<=j && pos < 0) {
+        		int m = (i+j)/2;
+        		if (arrNum[m] + arrNum[x] == money && m != x) {
+					auxNums.add(arrNum[m]);
+					auxNums.add(arrNum[x]);
+					pos = m;
+				} else if (arrNum[m] + arrNum[x] >= money) {
+					j = m - 1;
+				} else {
+					i = m + 1;
+				}
+        	}
+        	pos = -1;
+        	i = 0;
+        	j = arrNum.length - 1;
         }
-        int auxDif = -1;
-        int auxIndex = -1;
-        for (int i = 0; i < auxNums.size(); i += 2) {
-            for (int j = 1; j < auxNums.size(); j += 2) {
-                if (auxNums.get(i) < auxNums.get(j)) {
-                    int auxSort = auxNums.get(i);
-                    auxNums.set(i, auxNums.get(j));
-                    auxNums.set(j, auxSort);
-                }
-                int aux = auxNums.get(i) - auxNums.get(j);
-                if (aux < auxDif || auxDif == -1) {
-                    auxDif = aux;
-                    auxIndex = i;
-                }
-            }
-        }
-        numx = auxNums.get(auxIndex + 1);
-        numy = auxNums.get(auxIndex);
+        
+        for (int k = 0; k < auxNums.size(); k += 2) {
+			if (Math.abs(auxNums.get(k) - auxNums.get(k+1)) < monAux) {
+				monAux = auxNums.get(k) - auxNums.get(k+1);
+				numx = auxNums.get(k + 1);
+		        numy = auxNums.get(k);
+			}
+		}
     }
 
     public static int[] arrToInt(String[] arrNumStr, int num) {
